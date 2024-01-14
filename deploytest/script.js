@@ -78,9 +78,16 @@ function sendPredictionRequest() {
                 body: formData
             })
             .then(response => response.json())
-            .then(data => {
-                predictionResult.innerText = 'Prediction: ' + data.prediction;
-            })
+        .then(data => {
+            if (data.prediction !== undefined && data.class_name !== undefined) {
+                predictionResult.innerText = 'Prediction: ' + data.prediction + ', Class Name: ' + data.class_name;
+            } else if (data.error) {
+                predictionResult.innerText = 'Error: ' + data.error;
+            } else {
+                predictionResult.innerText = 'Error: Unexpected response format';
+            }
+        })
+
             .catch(error => {
                 console.error('Error:', error);
                 predictionResult.innerText = 'Error in prediction';
