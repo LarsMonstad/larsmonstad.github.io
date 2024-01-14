@@ -62,9 +62,20 @@ function bodyMouseOut(event) {
     }
 }
 
-function sendPredictionRequest(blob) {
+function dataURLtoBlob(dataurl) {
+    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], {type:mime});
+}
+
+function sendPredictionRequest() {
+    var dataURL = canvas.toDataURL('image/png');
+    var blob = dataURLtoBlob(dataURL);
     let formData = new FormData();
-    formData.append('file', blob, 'canvas_image.png'); // Treat the canvas data as a PNG file
+    formData.append('file', blob, 'canvas_image.png');
 
     fetch('https://flasktestjanuar-a1eae1288c2b.herokuapp.com/predict', {
         method: 'POST',
@@ -85,9 +96,7 @@ function sendPredictionRequest(blob) {
 }
 
 predictButton.addEventListener("click", function() {
-    canvas.toBlob(function(blob) {
-        sendPredictionRequest(blob);
-    }, 'image/png');
+    sendPredictionRequest();
 });
 
 
