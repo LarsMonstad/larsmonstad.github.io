@@ -64,6 +64,39 @@ function bodyMouseOut(event) {
     }
 }
 
+const predictButton = document.getElementById("predict-button");
+
+function getCanvasBlob(callback) {
+    // Convert the canvas drawing to a blob and pass it to the callback
+    canvas.toBlob(callback, 'image/png');
+}
+
+function sendPredictionRequest(blob) {
+    let formData = new FormData();
+    formData.append('file', blob);
+
+    // Send the data to your Flask backend
+    fetch('https://flasktestjanuar-a1eae1288c2b.herokuapp.com/predict', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Display the prediction result
+        predictionResult.innerText = 'Prediction: ' + data.prediction;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        predictionResult.innerText = 'Error in prediction';
+    });
+}
+
+predictButton.addEventListener("click", function() {
+    getCanvasBlob(function(blob) {
+        sendPredictionRequest(blob);
+    });
+});
+
 canvas.addEventListener("mousedown", canvasMouseDown);
 canvas.addEventListener("mousemove", canvasMouseMove);
 document.body.addEventListener("mouseup", bodyMouseUp);
