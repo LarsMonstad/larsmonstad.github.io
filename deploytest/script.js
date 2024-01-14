@@ -62,29 +62,36 @@ function bodyMouseOut(event) {
     }
 }
 
-function sendPredictionRequest(blob) {
-    let formData = new FormData();
-    formData.append('file', blob);
+function sendPredictionRequest() {
+    // Convert canvas to data URL (image)
+    var canvasDataURL = canvas.toDataURL('image/png');
 
-    fetch('https://flasktestjanuar-a1eae1288c2b.herokuapp.com/predict', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        predictionResult.innerText = 'Prediction: ' + data.prediction;
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        predictionResult.innerText = 'Error in prediction';
-    });
+    // Convert data URL to blob
+    fetch(canvasDataURL)
+        .then(res => res.blob())
+        .then(blob => {
+            let formData = new FormData();
+            formData.append('file', blob, 'canvas_image.png');
+
+            fetch('https://flasktestjanuar-a1eae1288c2b.herokuapp.com/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                predictionResult.innerText = 'Prediction: ' + data.prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                predictionResult.innerText = 'Error in prediction';
+            });
+        });
 }
 
 predictButton.addEventListener("click", function() {
-    canvas.toBlob(function(blob) {
-        sendPredictionRequest(blob);
-    }, 'image/png');
+    sendPredictionRequest();
 });
+
 
 canvas.addEventListener("mousedown", canvasMouseDown);
 canvas.addEventListener("mousemove", canvasMouseMove);
