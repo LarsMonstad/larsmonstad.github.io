@@ -4,6 +4,7 @@ const CANVAS_SCALE = 0.5;
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const clearButton = document.getElementById("clear-button");
+const predictButton = document.getElementById("predict-button");
 const predictionResult = document.getElementById("predictionResult");
 
 let isMouseDown = false;
@@ -30,8 +31,6 @@ function drawLine(fromX, fromY, toX, toY) {
     ctx.lineTo(toX, toY);
     ctx.closePath();
     ctx.stroke();
-    // Update predictions here if needed
-    // updatePredictions();
 }
 
 function canvasMouseDown(event) {
@@ -55,7 +54,6 @@ function canvasMouseMove(event) {
 
 function bodyMouseUp() {
     isMouseDown = false;
-    // Send image data for prediction here if real-time update is needed
 }
 
 function bodyMouseOut(event) {
@@ -64,25 +62,16 @@ function bodyMouseOut(event) {
     }
 }
 
-const predictButton = document.getElementById("predict-button");
-
-function getCanvasBlob(callback) {
-    // Convert the canvas drawing to a blob and pass it to the callback
-    canvas.toBlob(callback, 'image/png');
-}
-
 function sendPredictionRequest(blob) {
     let formData = new FormData();
     formData.append('file', blob);
 
-    // Send the data to your Flask backend
     fetch('https://flasktestjanuar-a1eae1288c2b.herokuapp.com/predict', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
-        // Display the prediction result
         predictionResult.innerText = 'Prediction: ' + data.prediction;
     })
     .catch(error => {
@@ -92,9 +81,9 @@ function sendPredictionRequest(blob) {
 }
 
 predictButton.addEventListener("click", function() {
-    getCanvasBlob(function(blob) {
+    canvas.toBlob(function(blob) {
         sendPredictionRequest(blob);
-    });
+    }, 'image/png');
 });
 
 canvas.addEventListener("mousedown", canvasMouseDown);
