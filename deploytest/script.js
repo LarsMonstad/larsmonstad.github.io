@@ -64,7 +64,7 @@ function bodyMouseOut(event) {
 
 function sendPredictionRequest(blob) {
     let formData = new FormData();
-    formData.append('file', blob, 'canvas_image.png'); // Adding a filename
+    formData.append('file', blob, 'canvas_image.png'); // Treat the canvas data as a PNG file
 
     fetch('https://flasktestjanuar-a1eae1288c2b.herokuapp.com/predict', {
         method: 'POST',
@@ -72,7 +72,7 @@ function sendPredictionRequest(blob) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.prediction !== undefined && data.class_name !== undefined) {
+        if (data && data.prediction !== undefined) {
             predictionResult.innerText = 'Prediction: ' + data.prediction + ', Class Name: ' + data.class_name;
         } else {
             predictionResult.innerText = 'Error: Unexpected response format';
@@ -89,6 +89,7 @@ predictButton.addEventListener("click", function() {
         sendPredictionRequest(blob);
     }, 'image/png');
 });
+
 
 
 
