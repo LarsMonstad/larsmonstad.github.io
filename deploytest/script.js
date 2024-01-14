@@ -62,42 +62,34 @@ function bodyMouseOut(event) {
     }
 }
 
-function sendPredictionRequest() {
-    // Convert canvas to data URL (image)
-    var canvasDataURL = canvas.toDataURL('image/png');
+function sendPredictionRequest(blob) {
+    let formData = new FormData();
+    formData.append('file', blob, 'canvas_image.png'); // Adding a filename
 
-    // Convert data URL to blob
-    fetch(canvasDataURL)
-        .then(res => res.blob())
-        .then(blob => {
-            let formData = new FormData();
-            formData.append('file', blob, 'canvas_image.png');
-
-            fetch('https://flasktestjanuar-a1eae1288c2b.herokuapp.com/predict', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-        .then(data => {
-            if (data.prediction !== undefined && data.class_name !== undefined) {
-                predictionResult.innerText = 'Prediction: ' + data.prediction + ', Class Name: ' + data.class_name;
-            } else if (data.error) {
-                predictionResult.innerText = 'Error: ' + data.error;
-            } else {
-                predictionResult.innerText = 'Error: Unexpected response format';
-            }
-        })
-
-            .catch(error => {
-                console.error('Error:', error);
-                predictionResult.innerText = 'Error in prediction';
-            });
-        });
+    fetch('https://flasktestjanuar-a1eae1288c2b.herokuapp.com/predict', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.prediction !== undefined && data.class_name !== undefined) {
+            predictionResult.innerText = 'Prediction: ' + data.prediction + ', Class Name: ' + data.class_name;
+        } else {
+            predictionResult.innerText = 'Error: Unexpected response format';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        predictionResult.innerText = 'Error in prediction';
+    });
 }
 
 predictButton.addEventListener("click", function() {
-    sendPredictionRequest();
+    canvas.toBlob(function(blob) {
+        sendPredictionRequest(blob);
+    }, 'image/png');
 });
+
 
 
 canvas.addEventListener("mousedown", canvasMouseDown);
