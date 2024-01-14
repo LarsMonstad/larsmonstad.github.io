@@ -71,9 +71,7 @@ function dataURLtoBlob(dataurl) {
     return new Blob([u8arr], {type:mime});
 }
 
-function sendPredictionRequest() {
-    var dataURL = canvas.toDataURL('image/png');
-    var blob = dataURLtoBlob(dataURL);
+function sendPredictionRequest(blob) {
     let formData = new FormData();
     formData.append('file', blob, 'canvas_image.png');
 
@@ -81,8 +79,12 @@ function sendPredictionRequest() {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log(response);
+        return response.json();
+    })
     .then(data => {
+        console.log(data); // Log the data
         if (data && data.prediction !== undefined) {
             predictionResult.innerText = 'Prediction: ' + data.prediction + ', Class Name: ' + data.class_name;
         } else {
@@ -94,6 +96,7 @@ function sendPredictionRequest() {
         predictionResult.innerText = 'Error in prediction';
     });
 }
+
 
 predictButton.addEventListener("click", function() {
     sendPredictionRequest();
