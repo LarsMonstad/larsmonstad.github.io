@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Upload for Prediction</title>
+    <script>
+        function uploadImage() {
+            var formData = new FormData();
+            var imagefile = document.querySelector('#file');
+            formData.append("file", imagefile.files[0]);
+
+            fetch('https://flasktestjanuar-a1eae1288c2b.herokuapp.com/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('predictionResult').innerText = 'Prediction: ' + data.prediction + ', Class Name: ' + data.class_name;
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById('predictionResult').innerText = 'Error: ' + error;
+            });
+        }
+    </script>
+</head>
+<body>
+    <form onsubmit="event.preventDefault(); uploadImage();">
+        <input type="file" id="file" name="file" accept="image/png, image/jpeg">
+        <input type="submit" value="Upload Image">
+    </form>
+    <div id="predictionResult"></div>
+</body>
+</html>
